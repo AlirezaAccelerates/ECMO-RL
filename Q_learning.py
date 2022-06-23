@@ -42,7 +42,7 @@ epsilon = 1.0
 gamma = 0.9
 for i in range(epochs):                                         
     ECMO = OxygenChallengeEnv(#possible initializations)        # Choosing a patient
-    state_ = ECMO.states                                        # The initial state for a patient
+    state_ = ECMO.states                                        # The initial states for a patient
     state1 = torch.from_numpy(state_).float()                   # Converting numpy array to PyTorch variable
     status = 1                                                  # Keeping track the processing
     while(status == 1):                                         # Doing ECMO
