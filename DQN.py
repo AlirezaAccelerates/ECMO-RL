@@ -82,19 +82,19 @@ for i in range(epochs):
             state2_batch = torch.cat([s2 for (s1,a,r,s2,d) in minibatch])
             done_batch = torch.Tensor([d for (s1,a,r,s2,d) in minibatch])
         
-        Q1 = model(state1_batch)
-        with torch.no_grad():
-            Q2 = model(state2_batch)
+            Q1 = model(state1_batch)
+            with torch.no_grad():
+                Q2 = model(state2_batch)
       
-        Y = reward_batch + gamma * ((1 - done_batch) * torch.max(Q2,dim=1)[0]) 
-        X = Q1.gather(dim=1,index=action_batch.long().unsqueeze(dim=1)).squeeze()
-        loss = loss_fn(X, Y.detach())
-        print(i, loss.item())
-        clear_output(wait=True)
-        optimizer.zero_grad()
-        loss.backward()
-        losses.append(loss.item())
-        optimizer.step()
+            Y = reward_batch + gamma * ((1 - done_batch) * torch.max(Q2,dim=1)[0]) 
+            X = Q1.gather(dim=1,index=action_batch.long().unsqueeze(dim=1)).squeeze()
+            loss = loss_fn(X, Y.detach())
+            print(i, loss.item())
+            clear_output(wait=True)
+            optimizer.zero_grad()
+            loss.backward()
+            losses.append(loss.item())
+            optimizer.step()
         
         
         if reward != ? and ! and ...:                          # Is the game still progressing?
