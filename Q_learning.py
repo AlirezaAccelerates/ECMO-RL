@@ -19,8 +19,9 @@ action_set = {                                                     # Initializin
 }
 
 ################################################################# Creating Q function
-# It can be either a trainable or nontrainable model - here I simply put a nueral network
-
+# I put a linear approximation function as the Q_learning model
+from sklearn.linear_model import SGDRegressor
+    
 class Approximation_Function():
     def __init__(self):
         
@@ -30,7 +31,7 @@ class Approximation_Function():
             model.partial_fit([state_], [0]) #Initial state
             self.models.append(model)
             
-    def predict(self, s, a=None):
+    def predict(self, s, a=None):                                 # Predicting Q value
         
         s_ = self.s
         if not a:
@@ -43,26 +44,9 @@ class Approximation_Function():
         s_update = self.s
         self.models[a].partial_fit([s_update], [y])
     
-    
-    
-    
-l1 = 32                                                        
-l2 = 64
-l3 = 4
 
-
-model = torch.nn.Sequential(
-    torch.nn.Linear(l1, l2),
-    torch.nn.ReLU(),
-    torch.nn.Linear(l2, l3),
-)
-    
-loss_fn = torch.nn.MSELoss()
-learning_rate = 1e-3
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 ################################################################# Training the RL model
 epochs = 1000
-losses = [] 
 epsilon = 1.0
 gamma = 0.9
 for i in range(epochs): 
@@ -71,45 +55,34 @@ for i in range(epochs):
     state1 = ECMO.states                                        # The initial states for a patient
     status = 1                                                  # Keeping track the processing
     while(status == 1):                                         # Doing ECMO
-        qval = estimator.predict(state1)                        # Determining Q value - We should pay attention to the size of the variables
-        qval_ = qval.data.numpy()                               # Maybe we do not need this!
+        qvals = estimator.predict(state1)                       # Determining Q value - We should pay attention to the size of the variables
+        qvals_ = qval.data.numpy()                              # Maybe we do not need this!
         
 ################################################################# Adding epsilon-greedy method
         if (random.random() < epsilon): 
             action_ = np.random.randint(0,4)                    # Number of possible actions
         else:
-            action_ = np.argmax(qval_)
+            action_ = np.argmax(qvals_)
 #################################################################
         
-        action = action_set[action_]                            #Choosing the best action
+        action = action_set[action_]                            # Choosing the best action
         ECMO.DoAction(action) 
         state2 = ECMO.states 
         reward = ECMO.reward()
         
-        newQ = estimator.predict(state2)
-        td_target = reward + gamma * np.max(newQ)
-        maxQ = np.argmax(newQ)                                  # Finding the maximum Q value predicted from the new state
+        new_qvals = estimator.predict(state2)                   # Finding the maximum Q value predicted from the new state
+        td_target = reward + gamma * np.max(new_qvals)                             
         
-        if reward == ? and ! and ...:                           # Is it the last iteration or not? After we define the reward fuction, we should motify this
-            Y = reward + (gamma * maxQ)
-        else:
-            Y = reward
-        
-        Y = torch.Tensor([Y]).detach()
-        X = qval.squeeze()[action_]                            # Createing a copy of the Q value updating the one element corresponding to the action taken
-        
-        loss = loss_fn(X, Y)
-        print(i, loss.item())
-        clear_output(wait=True)
-        optimizer.zero_grad()
-        loss.backward()
-        losses.append(loss.item())
-        optimizer.step()
+        print("\rEpisode {} ({})".format(i , reward))
+
         state1 = state2
         
-        if reward != ? and ! and ...:                          # Is the game still progressing?
+        estimator.update(state1, action, td_target)            # Temporal Difference Algorithms
+        
+        
+        if reward != ? and ! and ...:                          # Is the ECMO still progressing?
             status = 0
-    if epsilon > 0.1:                                          # Decrementing the epsilon value each epoch
+    if epsilon > 0.1:                                          # Decrementing the epsilon value in each epoch
         epsilon -= (1/epochs)
         
 
