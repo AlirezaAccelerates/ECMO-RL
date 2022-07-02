@@ -54,6 +54,7 @@ for i in range(epochs):
     ECMO = OxygenChallengeEnv(#possible initializations)        # Choosing a patient and reset the environments
     state1 = ECMO.states                                        # The initial states for a patient
     status = 1                                                  # Keeping track the processing
+    step += 1
     while(status == 1):                                         # Doing ECMO
         qvals = estimator.predict(state1)                       # Determining Q value - We should pay attention to the size of the variables
         qvals_ = qval.data.numpy()                              # Maybe we do not need this!
@@ -73,12 +74,12 @@ for i in range(epochs):
         new_qvals = estimator.predict(state2)                   # Finding the maximum Q value predicted from the new state
         td_target = reward + gamma * np.max(new_qvals)                             
         
-        print("\rEpisode {} ({})".format(i , reward))
+        print("\rEpisode {} Step {} TD {} Reward{}".format(i , step, td_target, reward))
 
         state1 = state2
         
         estimator.update(state1, action, td_target)            # Temporal Difference Algorithms
-        
+        step += 1
         
         if reward != ? and ! and ...:                          # Is the ECMO still progressing?
             status = 0
