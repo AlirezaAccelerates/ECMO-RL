@@ -53,6 +53,7 @@ for i in range(epochs):
     state_ = ECMO.states + np.random.rand/10                    # The initial states for a patient + a random number to prevent dead neurons
     state1 = torch.from_numpy(state_).float()                   # Converting numpy array to PyTorch variable
     status = 1                                                  # Keeping track the processing
+    step = 0
     while(status == 1):                                         # Doing ECMO
         qval = model(state1)                                    # Determining Q value - We should pay attention to the size of variables
         qval_ = qval.data.numpy()
@@ -95,6 +96,9 @@ for i in range(epochs):
             loss.backward()
             losses.append(loss.item())
             optimizer.step()
+        
+        print("\rEpisode {} Step {} Loss {} Reward{}".format(i , step, loss.item(), reward))
+        step += 1
         
         
         if reward != ? and ! and ...:                          # Is the game still progressing?
